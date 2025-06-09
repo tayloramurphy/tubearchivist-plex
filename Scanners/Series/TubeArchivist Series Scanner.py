@@ -100,6 +100,12 @@ def setup():
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,%f")
             )
         )
+        Log.debug("Plex Python environment: ")
+        Log.debug("\tPython version: %s" % (sys.version))
+        # Log.debug("\tPython argv: %s" % (sys.argv))
+        Log.debug("\tPython platform: %s" % (sys.platform))
+        Log.debug("\tPython prefix: %s" % (sys.prefix))
+        # Log.debug("\tPython thread info: %s" % (sys.thread_info))
         SetupDone = True
         return True
 
@@ -232,6 +238,27 @@ def filter_chars(in_string):
         if ch in in_string:
             in_string = in_string.replace(ch, subst)
     return in_string
+
+
+def set_date_to_utc(date):
+    tsymbolplus = False
+    if "+" in date:
+        dt, tz = date.split("+")
+        tsymbolplus = True
+    else:
+        sd = date.split("-")
+        dt = "".join(sd[:-1])
+        tz = (
+            sd[-1] if len(sd) > 3 else "00:00"
+        )  # (Year, Month, Datetime, [timezone])  # noqa: E501
+    tz = datetime.datetime.strptime(tz, "%H:%M")
+    tztd = datetime.timedelta(hours=tz.hour, minutes=tz.minute)
+    date_out = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+    if tsymbolplus:
+        date_out = date_out + tztd
+    else:
+        date_out = date_out - tztd
+    return date_out
 
 
 def load_ta_config():
@@ -471,15 +498,24 @@ def get_ta_video_metadata(ytid):
                 video_refresh = datetime.datetime.strptime(
                     vid_response["vid_last_refresh"], "%d %b, %Y"
                 )
-            else:
+            elif TA_CONFIG["version"] < [0, 5, 3]:
                 metadata["processed_date"] = datetime.datetime.strptime(
                     vid_response["published"], "%Y-%m-%d"
                 )
                 video_refresh = datetime.datetime.strptime(
                     vid_response["vid_last_refresh"], "%Y-%m-%d"
                 )
+            else:
+                metadata["processed_date"] = set_date_to_utc(
+                    vid_response["published"]
+                )
+                video_refresh = set_date_to_utc(
+                    vid_response["vid_last_refresh"]
+                )
+            # With the additional metadata, we can be more specific with the season ordering for v0.2.0 # noqa: E501
             metadata["refresh_date"] = video_refresh.strftime("%Y%m%d")
             metadata["season"] = metadata["processed_date"].year
+            # With the additional metadata, we can be more specific with the season ordering for v0.2.0 # noqa: E501
             metadata["episode"] = metadata["processed_date"].strftime("%Y%m%d")
             metadata["description"] = vid_response["description"]
             metadata["thumb_url"] = vid_response["vid_thumb_url"]
@@ -536,9 +572,13 @@ def get_ta_channel_metadata(chid):
                 channel_refresh = datetime.datetime.strptime(
                     ch_response["channel_last_refresh"], "%d %b, %Y"
                 )
-            else:
+            elif TA_CONFIG["version"] < [0, 5, 3]:
                 channel_refresh = datetime.datetime.strptime(
                     ch_response["channel_last_refresh"], "%Y-%m-%d"
+                )
+            else:
+                channel_refresh = set_date_to_utc(
+                    ch_response["channel_last_refresh"]
                 )
             metadata["refresh_date"] = channel_refresh.strftime("%Y%m%d")
             metadata["description"] = ch_response["channel_description"]
