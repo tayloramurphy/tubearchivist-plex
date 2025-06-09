@@ -46,7 +46,7 @@ A list of potential default installation locations:
     * '/raid0/data/PLEX_CONFIG/Plex Media Server/'                               # Thecus Plex community
 
 ## First time setup preparations
-1. Pull the [API Key](https://docs.tubearchivist.com/settings/application/#integrations) for TubeArchivist and have it ready for the configuration files.
+1. Pull the [API Key](https://docs.tubearchivist.com/api/introduction/#authentication)) for TubeArchivist and have it ready for the configuration files.
 2. Ensure that Plex can see the TubeArchivist Media directory that you use to store the downloaded videos.
 3. Ensure that the system running Plex can communicate to TubeArchivist.
 4. If using a non-standard port (HTTP uses 80, HTTPS uses 443), including the TubeArchivist default port of 8000, that must be included with the `TA_URL` configurations.
@@ -88,8 +88,13 @@ A list of potential default installation locations:
 # Troubleshooting
 If you are having problems with seeing the Scanner or Agent, confirm that the instructions are followed.
 If the Scanner and Agent are selected, but you are not seeing videos, then it could mean that the Scanner is having a problem. Check the Scanner Logs to get more information.
+
 If the Scanner and Agent are selected, but the channels or videos are not pulling in thumbnails, correct titles, or having other issues with the metadata, then it could mean that the Agent is having a problem. Check the Agent Logs to get more information.
 Reminder: If using a non-standard port (HTTP uses 80, HTTPS uses 443), including the TubeArchivist default port of 8000, that must be included with the `TA_URL` configurations.
+
+If you have a firewall or Cloudflare proxy, this can block all requests and report back as `HTTP 403: Forbidden`. If you are seeing these, first check that you have the correct `TA_URL`, that the `TA_URL` matches your TubeArchivist `TA_HOST`, then check if your firewall settings. [Issue 32](https://github.com/tubearchivist/tubearchivist-plex/issues/32) has more details for the Cloudflare Firewall and Bot Protection features.
+
+Local subtitles that are provided outside of the TubeArchivist context are not typically supported, but you can still access them via the [Local Media Assets configuration in the Agent Settings for Metadata Agents](https://support.plex.tv/articles/200241558-agents/). Sometimes you will also need to enable the Local Media Assets if subtitles are not showing from TubeArchivist.
 
 # Log Locations
 Scanner Log Location: `Plex Media Server/Logs/TubeArchivist Scanner`, default file is `_root_.scanner.log`
