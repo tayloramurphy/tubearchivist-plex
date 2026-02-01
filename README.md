@@ -99,7 +99,7 @@ Local subtitles that are provided outside of the TubeArchivist context are not t
 # Log Locations
 Scanner Log Location: `Plex Media Server/Logs/TubeArchivist Scanner`, default file is `_root_.scanner.log`
 
-Agent Log Location: `Plex Media Server/Logs/PMS Plugin Logs/com.plexapp.agents.tubearchivist_agent.log`
+Agent Log Location: `Plex Media Server/Logs/PMS Plugin Logs/com.plexapp.agents.ta.log`
 
 # Issues
 If you are still having an issue, either open an Issue in GitHub or a Support Case on the Discord, specifying that it is related to the Plex integration.
